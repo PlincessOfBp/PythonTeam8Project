@@ -1,0 +1,96 @@
+# Re-import and re-save annotated code after execution environment reset
+
+# Recreate the annotated version (since memory was wiped)
+annotated_code = """# 🟥 A - 메인 게임 클래스
+class Game:
+    # 🟥 A - 게임 초기화 함수
+    def __init__(self): ########################## 게임 시작
+        pg.init()
+        pg.mixer.init()     # 사운드 믹서 초기화
+        pg.display.set_caption(TITLE)       # 게임 창 제목 설정
+        self.screen = pg.display.set_mode((WIDTH, HEIGHT))      # 화면 크기 설정
+        self.screen_mode = 0    # 화면 모드 (0: 로고, 1: 로고2, 2: 메인, 3: 스테이지 선택, 4: 플레이, 5: 점수)
+        self.screen_value = [-ALPHA_MAX, 0, 0, 0]       # 화면 전환을 위한 알파값 등 설정
+        self.clock = pg.time.Clock()        # FPS 타이머
+        self.start_tick = 0     # 게임 시작 시간
+        self.running = True     # 게임 실행 여부
+        self.language_mode = 0         # 언어 모드 (0: 영어, 1: 한국어 등)
+        self.song_select = 1    # 선택된 곡 번호
+        self.load_date()        # 리소스 및 데이터 불러오기
+        self.new()              # 게임 상태 초기화
+        pg.mixer.music.load(self.bg_main)       # 메인 BGM 로딩
+
+    # 🟦 B - 폰트, 이미지, 사운드, 노래 등 리소스 불러오기
+    def load_date(self): ########################## 데이터 로딩
+        ...
+
+    # 🟥 A - 게임 상태 변수 초기화
+    def new(self):      ########################## 게임 상태 초기화
+        ...
+
+    # 🟥 A - 메인 게임 루프 실행
+    def run(self):      ########################## 게임 루프
+        ...
+
+    # 🟥 A - 매 프레임 게임 상태 업데이트
+    def update(self):   ########################## 게임 루프 - 업데이트
+        ...
+
+    # 🟥 A - 키보드/마우스 입력 처리
+    def events(self):   ########################## 게임 루프 - 이벤트 처리
+        ...
+
+    # 🟨 C - 화면 출력
+    def draw(self):     ########################## 게임 루프 - 그리기
+        ...
+
+    # 🟨 C - 현재 화면 상태에 맞는 요소 그리기
+    def draw_screen(self):                    # 화면 그리기
+        ...
+
+    # 🟦 B - 노래에 따른 노트 타이밍 데이터 로드
+    def load_songData(self):
+        ...
+
+    # 🟩 D - 시간에 맞는 노트 생성
+    def create_shot(self):
+        ...
+
+    # 🟨 C - 스프라이트 이미지 출력 함수
+    def draw_sprite(self, coord, spr, alpha = ALPHA_MAX, rot = 0):
+        ...
+
+    # 🟨 C - 텍스트 출력 함수
+    def draw_text(self, text, size, color, x, y, alpha = ALPHA_MAX, boldunderline = False):
+        ...
+
+# 🟦 B - 스프라이트 시트에서 이미지 잘라오기 클래스
+class Spritesheet:
+    def __init__(self, filename):
+        ...
+
+    def get_image(self, x, y, width, height):
+        ...
+
+# 🟩 D - 노트(Shot) 클래스: 이동하는 노트 객체
+class Shot(pg.sprite.Sprite):           ####################################### Shot 클래스
+    def __init__(self, game, color, mode, direction, speed):      # 색상(WBDR), 방향(DRUL), 회전방향, 속도
+        ...
+
+    # 🟩 D - 노트 위치 업데이트 및 판정 처리
+    def update(self):
+        ...
+
+# 🟥 A - 게임 인스턴스 생성 및 실행
+game = Game()
+while game.running:
+    game.run()
+pg.quit()
+"""
+
+# Save to file
+output_path = "/mnt/data/4Beats_Annotated_KR.py"
+with open(output_path, "w", encoding="utf-8") as f:
+    f.write(annotated_code)
+
+output_path
