@@ -1,0 +1,168 @@
+
+import pygame as pg
+import os, time, random
+
+##가보자고
+
+# ------------------------------
+# Shot 클래스 (노트 오브젝트)
+# ------------------------------
+class Shot(pg.sprite.Sprite):
+    def __init__(self, game, color, mode, direction, speed):
+        super().__init__()
+        self.game = game # Game 클래스와 연결
+        self.color = color # 색상 (W, B, D, R)
+        self.mode = mode # 회전 여부 (0: 정지, 1: 회전)
+        self.direction = direction # 방향 (D, R, U, L)
+        self.speed = speed # 이동 속도
+
+        # 이미지 생성 (단색 사각형으로 임시 생성 가능)
+        self.image = pg.Surface((60, 60), pg.SRCALPHA)
+        self.image.fill(pg.Color("white"))
+        self.rect = self.image.get_rect()
+
+        # 초기 위치 설정
+        self.set_initial_position()
+
+    def set_initial_position(self):
+        if self.direction == "D":
+            self.rect.center = (320, -50)  # 위에서 내려오게
+        elif self.direction == "U":
+            self.rect.center = (320, 530)  # 아래에서 올라오게
+        elif self.direction == "L":
+            self.rect.center = (-50, 240)
+        elif self.direction == "R":
+            self.rect.center = (690, 240)
+
+    def update(self):
+        if self.direction == "D":
+            self.rect.y += self.speed
+        elif self.direction == "U":
+            self.rect.y -= self.speed
+        elif self.direction == "L":
+            self.rect.x += self.speed
+        elif self.direction == "R":
+            self.rect.x -= self.speed
+
+        center = pg.math.Vector2(320, 240)
+        current = pg.math.Vector2(self.rect.center)
+        distance = center.distance_to(current)
+
+        if distance < 20:  # 완벽한 타이밍 (예시)
+            self.kill()  # 노트 삭제
+            self.game.score += 100  # 점수 추가
+            # 효과음 재생 등 추가
+
+# ------------------------------
+# Game 클래스 (전체 흐름 담당)
+# ------------------------------
+class Game:
+    def __init__(self):
+        pg.init() # pygame 초기화
+        pg.mixer.init() # 이것도 초기화
+
+        self.prev_mode = -1 # 이전 모드를 저장할 변수
+
+        self.screen = pg.display.set_mode((640, 480))  # 창 크기 설정
+        pg.display.set_caption("파이썬 리듬게임 제목 추천좀")  # 창 제목 설정
+        self.clock = pg.time.Clock()  # 시간 측정용 시계
+        self.start_tick = 0  # 게임 시작 시간
+
+        self.running = True  # 게임 전체가 켜져 있는지
+        self.playing = False  # 한 판 게임 중인지
+        self.screen_mode = 0  # 화면 상태 (0: 로고, 1: 메인, 2: 선택 등)
+        self.screen_value = [0, 0, 0, 0]  # 화면 관련 애니메이션 등에 쓰일 값. 쓸거면 이거 가져가셈. 필요시 수정 가능
+
+        self.language_mode = 0  # 언어 모드 (0: 영어, 1: 한국어 ...)
+        self.song_select = 1  # 선택된 노래 번호
+
+        # D 파트 관련
+        self.all_sprites = pg.sprite.Group()
+        self.shots = pg.sprite.Group()
+        self.song_index = 0
+        self.song_data = [
+            ["1000", "W", "0", "D"],
+            ["2000", "B", "0", "U"],
+            ["3000", "R", "0", "L"],
+            ["4000", "D", "0", "R"]
+        ]
+        self.score = 0
+
+    def run(self):
+        self.playing = True
+        while self.playing:
+            self.clock.tick(60) # 60프레임
+            self.events() # 이벤트 처리
+            self.update() # 상태 갱신
+            self.draw() # C가 할거. 화면 그리기가 이거임 ㅇㅇ
+
+        pg.mixer.music.fadeout(600) # 음악 천천히 꺼지기
+
+    def events(self): # 이벤트 함수
+        for event in pg.event.get(): # 감지한 모든 이벤트 확인
+            if event.type == pg.QUIT: # 나가기
+                self.playing = False
+                self.running = False
+            elif event.type == pg.KEYDOWN:  # 키보드 키가 눌렸을 때
+                if event.key == pg.K_ESCAPE: # ESC 키를 누르면 창 닫힘
+                    self.playing = False
+                elif event.key == pg.K_RETURN: # Enter키로 일단 해둠
+                    if self.screen_mode == 1: # 메인에서 곡 선택으로
+                        self.screen_mode = 2
+                        print("곡 선택 화면으로 이동")
+                    elif self.screen_mode == 2: # 곡 선택에서 플레이 시작으로
+                        self.screen_mode = 3
+                        self.start_tick = pg.time.get_ticks() # 시간 재는거 
+                        print("플레이 시작")
+                    elif self.screen_mode == 4: # 결과에서 메인 메뉴로
+                        self.screen_mode = 1
+                        print("메인 메뉴로 돌아감")
+
+    def update(self): # 업데이트 함수
+        current_tick = pg.time.get_ticks() # 지금 시점 시간 (단위: 밀리초)
+        self.elapsed_time = current_tick - self.start_tick # 시작 시점과의 차이
+
+        # 화면 모드에 따른 처리 분기
+        if self.screen_mode == 0:
+            # 로고 화면 → 3초 지나면 자동으로 메인으로 넘어감
+            if self.elapsed_time > 3000: #단위 밀리초라서 이럼
+                self.screen_mode = 1
+                print("→ 메인 메뉴로 이동")
+
+        elif self.screen_mode == 3:
+            # 플레이 화면
+            self.create_shot()
+            self.all_sprites.update()
+            if self.elapsed_time > 5000:
+                #흐름을 보기 위해 5초 뒤 플레이화면에서 결과 화면으로 옮겨지게 코딩함.
+                print("결과 화면으로 전환")
+                self.screen_mode = 4
+
+        if self.prev_mode != self.screen_mode:
+            self.prev_mode = self.screen_mode # 이전 모드 갱신
+
+    def draw(self):
+        self.screen.fill((0, 0, 0))
+        self.all_sprites.draw(self.screen)
+        pg.display.flip()
+
+    def create_shot(self): # 노트 생성 함수
+        if self.song_index < len(self.song_data):
+            note = self.song_data[self.song_index]  # 예: ["1200", "R", "0", "8"]
+            time_ms = int(note[0])
+            if pg.mixer.music.get_pos() >= time_ms:
+                shot = Shot(
+                    game=self,
+                    color=note[1],
+                    mode=int(note[2]),
+                    direction=note[3],
+                    speed=5
+                )
+                self.all_sprites.add(shot)
+                self.shots.add(shot)
+                self.song_index += 1
+
+if __name__ == '__main__': # 이거 메인 함수
+    game = Game()
+    game.run()
+    print('게임 루프 종료됨') # 종료 콘솔창으로 보려고 만든거
