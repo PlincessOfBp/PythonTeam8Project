@@ -73,7 +73,6 @@ class Game:
         self.screen_mode = 0  # 화면 상태 (0: 로고, 1: 메인, 2: 선택 등)
         self.screen_value = [0, 0, 0, 0]  # 화면 관련 애니메이션 등에 쓰일 값. 쓸거면 이거 가져가셈. 필요시 수정 가능
 
-        self.language_mode = 0  # 언어 모드 (0: 영어, 1: 한국어 ...)
         self.song_select = 1  # 선택된 노래 번호
 
         # D 파트 관련
@@ -177,15 +176,6 @@ class Game:
         self.fnt_dir = os.path.join(self.dir, 'font')
         # 게임에서 사용할 기본 폰트 파일의 전체 경로를 설정
         self.gameFont = os.path.join(self.fnt_dir, DEFAULT_FONT)
-
-        # 'language.ini' 파일을 UTF-8 인코딩으로 열어서 읽기
-        # 이 파일에는 게임에서 사용할 여러 언어의 문구들이 저장
-        with open(os.path.join(self.fnt_dir, 'language.ini'), "r", encoding='UTF-8') as language_file:
-            # 파일 내용을 전부 읽고 줄바꿈('\n')을 기준으로 나눠서 리스트 만들기
-            language_lists = language_file.read().split('\n')
-
-        # 각 줄을 다시 언더바('_')를 기준으로 나눠서 2차원 리스트 형태로 저장
-        self.language_list = [n.split("_") for n in language_lists]
 
         ### image (이미지 관련 설정 및 로딩)
         # 이미지 파일들이 있는 하위 디렉토리 경로를 설정
@@ -311,18 +301,6 @@ class Game:
         # 특히 플레이어가 맞춰야 하는 투사체(shot)들만 따로 관리하는 그룹
         # 이 그룹은 충돌 감지나 투사체 관련 로직에 사용됨
         self.shots = pg.sprite.Group()  # 투사체 스프라이트 그룹
-
-    def load_language(self, index):  ########################## 언어별 문구 로딩 함수
-        # try-except 블록으로 오류 발생 시 예외 처리
-        try:
-            # self.language_list (language.ini에서 읽어온 데이터)에서
-            # 현재 설정된 언어 모드(self.language_mode)에 해당하는 리스트를 선택하고,
-            # 그 리스트에서 요청된 인덱스(index)에 해당하는 문구를 반환
-            return self.language_list[self.language_mode][index]
-        except:
-            # 만약 self.language_mode나 index가 잘못되었거나 데이터가 없으면
-            # 오류 대신 "Font Error" 문자열을 반환
-            return "Font Error"
 
     def load_songData(self):  ########################## 곡 데이터 로딩 함수
         # 현재 선택된 곡의 데이터 파일 경로(self.song_dataPath[self.song_select - 1])를
