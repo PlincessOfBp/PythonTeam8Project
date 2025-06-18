@@ -4,6 +4,17 @@ import os, time, random
 
 ##가보자고
 
+WIDTH = 640
+HEIGHT = 480
+FPS = 60
+DEFAULT_FONT = "NotoSansCJKkr-Regular.otf"
+
+WHITE = (238, 238, 238)     ### color setting
+BLACK = (32, 36, 32)
+RED = (246, 36, 74)
+BLUE = (32, 105, 246)
+ALPHA_MAX = 255
+
 # ------------------------------
 # Shot 클래스 (노트 오브젝트)
 # ------------------------------
