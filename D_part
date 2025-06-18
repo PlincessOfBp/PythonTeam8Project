@@ -1,0 +1,62 @@
+import pygame as pg
+
+class Shot(pg.sprite.Sprite):
+ def init(self, game, color, mode, direction, speed):
+    super().init()
+    self.game = game # Game 클래스와 연결
+    self.color = color # 색상 (W, B, D, R)
+    self.mode = mode # 회전 여부 (0: 정지, 1: 회전)
+    self.direction = direction # 방향 (D, R, U, L)
+    self.speed = speed # 이동 속도
+
+    # 이미지 생성 (단색 사각형으로 임시 생성 가능)
+    self.image = pg.Surface((60, 60), pg.SRCALPHA)
+    self.rect = self.image.get_rect()
+
+    # 초기 위치 설정
+    self.set_initial_position()
+
+
+ def set_initial_position(self):
+    if self.direction == "D":
+        self.rect.center = (320, -50)  # 위에서 내려오게
+    elif self.direction == "U":
+        self.rect.center = (320, 530)  # 아래에서 올라오게
+    elif self.direction == "L":
+        self.rect.center = (-50, 240)
+    elif self.direction == "R":
+        self.rect.center = (690, 240)
+
+ def update(self):
+     if self.direction == "D":
+         self.rect.y += self.speed
+     elif self.direction == "U":
+        self.rect.y -= self.speed
+     elif self.direction == "L":
+        self.rect.x += self.speed
+     elif self.direction == "R":
+        self.rect.x -= self.speed
+
+     center = pg.math.Vector2(320, 240)
+     current = pg.math.Vector2(self.rect.center)
+     distance = center.distance_to(current)
+
+     if distance < 20:  # 완벽한 타이밍 (예시)
+        self.kill()  # 노트 삭제
+        self.game.score += 100  # 점수 추가
+        # 효과음 재생 등 추가
+
+ def create_shot(self):
+     if self.song_index < len(self.song_data):
+         note = self.song_data[self.song_index]  # 예: ["1200", "R", "0", "8"]
+
+     time_ms = int(note[0])
+     if self.music.get_pos() >= time_ms:
+      shot = Shot(game=self,
+                 color=note[1],
+                 mode=int(note[2]),
+                 direction=note[1],
+                 speed=int(note[3]))
+     self.all_sprites.add(shot)
+     self.shots.add(shot)
+     self.song_index += 1
