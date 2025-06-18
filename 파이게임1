@@ -1,6 +1,15 @@
 
 ## 가보자고
+WIDTH = 640
+HEIGHT = 480
+FPS = 60
+DEFAULT_FONT = "NotoSansCJKkr-Regular.otf"
 
+WHITE = (238, 238, 238)     ### color setting
+BLACK = (32, 36, 32)
+RED = (246, 36, 74)
+BLUE = (32, 105, 246)
+ALPHA_MAX = 255
 def load_date(self): # 데이터 로딩 함수 시작
     # 현재 실행 중인 파이썬 파일의 디렉토리 경로를 가져와서 self.dir에 저장
     # 이 경로를 기준으로 다른 리소스 파일들의 위치 탐색
