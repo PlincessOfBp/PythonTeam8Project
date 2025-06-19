@@ -10,6 +10,7 @@ HEIGHT = 480
 FPS = 60
 DEFAULT_FONT = "NotoSansCJKkr-Regular.otf"
 
+GRAY = (200, 200, 200)
 WHITE = (238, 238, 238)     ### color setting
 BLACK = (32, 36, 32)
 RED = (246, 36, 74)
@@ -83,6 +84,7 @@ class Game:
                         self.screen_mode = 3
                         self.song_index = 0
                         self.start_tick = pg.time.get_ticks() # 시간 재는거
+                        self.new()
                         self.load_songData()
                         pg.mixer.music.load(self.song_path[self.song_select-1])
                         pg.mixer.music.play()
@@ -344,6 +346,8 @@ class Game:
         except Exception as e:
             print("곡 데이터 로딩 실패:", e)
 
+        self.song_index = 0
+        self.song_dataIndex = 0
 
     def new(self):  ########################## Game Initialize (게임 초기화 함수 시작)
         # 현재 플레이할 곡의 데이터를 저장할 빈 리스트 만들기
@@ -449,7 +453,11 @@ class Game:
 
 
     def draw(self):
-        self.screen.fill(BLACK)
+        # 플레이 중이면 흰색 배경, 아니면 검정색
+        if self.screen_mode == 3:
+            self.screen.fill(GRAY)
+        else:
+            self.screen.fill(BLACK)
         self.all_sprites.draw(self.screen)
         self.draw_ui()
         pg.display.flip()
